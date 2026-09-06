@@ -6,17 +6,18 @@ A Streamlit app that gives AI-powered, role-tailored feedback on a resume. Uploa
 
 The app is a small graph with two nodes and a feedback loop:
 
-```
-ingestion -> analyze -> (grade) -> useful?     -> END
-                            |
-                            +---> not useful -> analyze (retry)
+```mermaid
+flowchart TD
+    start([start]) --> ingestion[ingestion]
+    ingestion --> analyze[analyze]
+    analyze --> grade{grade: useful?}
+    grade -->|yes| end_([end])
+    grade -->|no, retry| analyze
 ```
 
 1. **Ingestion** — the uploaded resume is loaded, split into chunks, embedded, and stored in a local [Chroma](https://www.trychroma.com/) vector store.
 2. **Analyze** — an LLM reviews the resume content against the target job role and produces structured feedback.
 3. **Grade** — a second LLM call checks whether the feedback is actually grounded in the resume content. If not, the graph loops back to `analyze` and retries (up to `MAX_RETRIES`, defined in `graph/consts.py`) before accepting the result.
-
-See `graph/analyzing.png` for the rendered graph diagram.
 
 ## Tech stack
 
